@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "import"],
+  "ignorePatterns": ["out/**", "node_modules/**", "coverage/**", "*.vsix"],
+  "rules": {
+    "no-console": "warn",
+    "unicorn/prefer-node-protocol": "error"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["src/test/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["fixtures/**/*"],
+      "rules": {
+        "no-unused-vars": "off"
+      }
+    }
+  ]
+}
