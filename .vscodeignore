@@ -1,0 +1,12 @@
+.vscode/**
+fixtures/**
+scripts/**
+src/**
+.oxfmtrc.json
+.oxlintrc.json
+tsconfig.json
+pnpm-lock.yaml
+*.vsix
+resources/icon.svg
+out/**/*.map
+out/test/**
