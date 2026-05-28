@@ -23,6 +23,7 @@
   "publisher": "ywenhao",
   "author": "ywenhao",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/ywenhao/todo-tree-pro.git"
@@ -31,17 +32,17 @@
   "bugs": {
     "url": "https://github.com/ywenhao/todo-tree-pro/issues"
   },
-  "main": "./out/extension.js",
+  "main": "./dist/extension.mjs",
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "tsdown && node scripts/copy-ripgrep.mjs",
+    "watch": "tsdown --watch",
     "check": "tsc --noEmit -p ./",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "test": "pnpm run compile && node out/test/commentParser.test.js && node scripts/check-ripgrep.js"
+    "test": "pnpm run compile && vitest run && node scripts/check-ripgrep.mjs"
   },
   "dependencies": {
     "@vscode/ripgrep": "^1.18.0",
@@ -52,7 +53,9 @@
     "@types/vscode": "^1.101.0",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
-    "typescript": "^5.8.3"
+    "tsdown": "^0.22.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.7"
   },
   "contributes": {
     "commands": [

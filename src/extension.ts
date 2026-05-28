@@ -6,7 +6,7 @@ import { TodoTreeProvider, isTodoNode } from './treeProvider'
 import { TodoHighlighter } from './highlighter'
 import { debounce } from './debounce'
 
-export = defineExtension(() => {
+const extension = defineExtension(() => {
   const store = new TodoStore()
   const provider = new TodoTreeProvider(store)
   const highlighter = new TodoHighlighter()
@@ -64,6 +64,9 @@ export = defineExtension(() => {
     provider.setMode(mode)
   }
 })
+
+export const activate = extension.activate
+export const deactivate = extension.deactivate
 
 function registerWorkspaceListeners(
   store: TodoStore,

@@ -1,6 +1,8 @@
-const { spawnSync } = require('node:child_process')
-const path = require('node:path')
+import { spawnSync } from 'node:child_process'
+import { createRequire } from 'node:module'
+import path from 'node:path'
 
+const require = createRequire(import.meta.url)
 const arch = process.env.npm_config_arch || process.arch
 const binaryName = process.platform === 'win32' ? 'rg.exe' : 'rg'
 const ripgrepRoot = path.resolve(path.dirname(require.resolve('@vscode/ripgrep')), '..')
