@@ -4,9 +4,14 @@
   "version": "0.0.1",
   "private": true,
   "description": "Fast TODO explorer with tree/list modes and editor highlights.",
+  "icon": "resources/icon.png",
   "categories": [
     "Other"
   ],
+  "galleryBanner": {
+    "color": "#101722",
+    "theme": "dark"
+  },
   "publisher": "local",
   "main": "./out/extension.js",
   "scripts": {

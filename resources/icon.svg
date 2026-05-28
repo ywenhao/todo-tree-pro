@@ -1,0 +1,43 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="38" y1="28" x2="218" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#172033"/>
+      <stop offset="0.54" stop-color="#101722"/>
+      <stop offset="1" stop-color="#0B1118"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="54" y1="55" x2="184" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="108" y1="87" x2="180" y2="115" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="shadow" x="31" y="38" width="186" height="177" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#020617" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect x="14" y="14" width="228" height="228" rx="48" fill="url(#bg)"/>
+  <rect x="18.5" y="18.5" width="219" height="219" rx="43.5" stroke="#334155" stroke-opacity="0.55" stroke-width="3"/>
+
+  <g filter="url(#shadow)">
+    <path d="M70 70V187" stroke="url(#accent)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M70 91H107" stroke="url(#accent)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M70 132H107" stroke="url(#accent)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M70 173H107" stroke="url(#accent)" stroke-width="10" stroke-linecap="round"/>
+
+    <rect x="43" y="55" width="54" height="54" rx="17" fill="#0F172A" stroke="#2DD4BF" stroke-width="5"/>
+    <rect x="43" y="116" width="54" height="54" rx="17" fill="#0F172A" stroke="#34D399" stroke-width="5"/>
+    <circle cx="70" cy="194" r="23" fill="#0F172A" stroke="#5EEAD4" stroke-width="5"/>
+
+    <path d="M58 82L67 91L84 70" stroke="#ECFEFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M58 143L67 152L84 131" stroke="#ECFEFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M62 194H78" stroke="#ECFEFF" stroke-width="7" stroke-linecap="round"/>
+
+    <rect x="108" y="66" width="93" height="26" rx="13" fill="#E2E8F0"/>
+    <rect x="108" y="103" width="71" height="16" rx="8" fill="url(#gold)"/>
+    <rect x="108" y="128" width="108" height="26" rx="13" fill="#CBD5E1"/>
+    <rect x="108" y="168" width="82" height="26" rx="13" fill="#94A3B8"/>
+  </g>
+</svg>
