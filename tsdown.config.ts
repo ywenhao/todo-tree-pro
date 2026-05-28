@@ -9,7 +9,7 @@ export default defineConfig({
   platform: 'node',
   target: 'node22',
   clean: true,
-  sourcemap: true,
+  sourcemap: false,
   dts: false,
   deps: {
     neverBundle: ['vscode', '@vscode/ripgrep'],
