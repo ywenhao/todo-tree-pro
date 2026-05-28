@@ -1,8 +1,12 @@
 const { spawnSync } = require('node:child_process')
+const path = require('node:path')
 
 const arch = process.env.npm_config_arch || process.arch
 const binaryName = process.platform === 'win32' ? 'rg.exe' : 'rg'
-const rgPath = require.resolve(`@vscode/ripgrep-${process.platform}-${arch}/bin/${binaryName}`)
+const ripgrepRoot = path.resolve(path.dirname(require.resolve('@vscode/ripgrep')), '..')
+const rgPath = require.resolve(`@vscode/ripgrep-${process.platform}-${arch}/bin/${binaryName}`, {
+  paths: [ripgrepRoot],
+})
 const result = spawnSync(
   rgPath,
   ['--files-with-matches', '--ignore-case', '--regexp', '\\btodo\\b', 'fixtures/todos'],
