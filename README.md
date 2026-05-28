@@ -21,21 +21,21 @@
 
 Open the Command Palette and search for `TODO Tree`:
 
-| Command | Description |
-| --- | --- |
-| `TODO Tree: Refresh` | Rescan the workspace and update the TODO view. |
-| `TODO Tree: Tree` | Show TODOs grouped by workspace structure. |
-| `TODO Tree: List` | Show TODOs in a flat list. |
-| `TODO Tree: Open TODO` | Open the selected TODO in the editor. |
+| Command                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `TODO Tree: Refresh`   | Rescan the workspace and update the TODO view. |
+| `TODO Tree: Tree`      | Show TODOs grouped by workspace structure.     |
+| `TODO Tree: List`      | Show TODOs in a flat list.                     |
+| `TODO Tree: Open TODO` | Open the selected TODO in the editor.          |
 
 ## Settings
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| `reactiveTodoTree.excludeGlobs` | Common build and dependency folders | Glob patterns excluded from TODO scans. |
-| `reactiveTodoTree.maxFileSize` | `5242880` | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
-| `reactiveTodoTree.highlight.enabled` | `true` | Highlight TODO markers in visible editors. |
-| `reactiveTodoTree.scanOnTextChange` | `true` | Update the TODO view from unsaved text buffer changes. |
+| Setting                              | Default                             | Description                                                               |
+| ------------------------------------ | ----------------------------------- | ------------------------------------------------------------------------- |
+| `reactiveTodoTree.excludeGlobs`      | Common build and dependency folders | Glob patterns excluded from TODO scans.                                   |
+| `reactiveTodoTree.maxFileSize`       | `5242880`                           | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
+| `reactiveTodoTree.highlight.enabled` | `true`                              | Highlight TODO markers in visible editors.                                |
+| `reactiveTodoTree.scanOnTextChange`  | `true`                              | Update the TODO view from unsaved text buffer changes.                    |
 
 ## Development
 
@@ -47,8 +47,6 @@ pnpm run compile
 ```
 
 Press `F5` in VS Code to start an Extension Development Host.
-
-Useful scripts:
 
 ```powershell
 pnpm test

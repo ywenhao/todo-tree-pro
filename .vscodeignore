@@ -1,7 +1,6 @@
 .vscode/**
 .gitignore
 fixtures/**
-scripts/**
 src/**
 .oxfmtrc.json
 .oxlintrc.json

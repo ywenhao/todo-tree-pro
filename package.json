@@ -1,50 +1,45 @@
 {
   "name": "todo-tree-pro",
   "displayName": "TODO Tree Pro",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "A fast TODO explorer for VS Code with tree/list views, ripgrep-powered scans, and editor highlights.",
-  "icon": "resources/icon.png",
   "categories": [
     "Other"
   ],
   "keywords": [
-    "todo",
-    "tree",
     "comments",
-    "tasks",
+    "productivity",
     "ripgrep",
-    "productivity"
+    "tasks",
+    "todo",
+    "tree"
   ],
-  "galleryBanner": {
-    "color": "#101722",
-    "theme": "dark"
-  },
-  "publisher": "todo-tree-pro",
-  "author": "ywenhao",
-  "license": "MIT",
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ywenhao/todo-tree-pro.git"
-  },
   "homepage": "https://github.com/ywenhao/todo-tree-pro#readme",
   "bugs": {
     "url": "https://github.com/ywenhao/todo-tree-pro/issues"
   },
+  "license": "MIT",
+  "author": "ywenhao",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ywenhao/todo-tree-pro.git"
+  },
+  "publisher": "todo-tree-pro",
+  "type": "module",
   "main": "./dist/extension.mjs",
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
     "build": "pnpm run package",
-    "compile": "tsdown && node scripts/copy-ripgrep.mjs",
+    "compile": "tsdown",
     "watch": "tsdown --watch",
     "check": "tsc --noEmit -p ./",
-    "package": "pnpm dlx @vscode/vsce package --no-dependencies --out todo-tree-pro.vsix",
+    "package": "pnpm dlx @vscode/vsce package --out todo-tree-pro.vsix",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "test": "pnpm run compile && vitest run && node scripts/check-ripgrep.mjs"
+    "test": "pnpm run compile && vitest run"
   },
   "dependencies": {
     "@vscode/ripgrep": "^1.18.0",
@@ -170,6 +165,11 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#101722",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.101.0"
   },

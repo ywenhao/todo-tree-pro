@@ -1,9 +1,6 @@
 import { spawn } from 'node:child_process'
-import { existsSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { stat } from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { rgPath } from '@vscode/ripgrep'
 import { Uri, workspace } from 'vscode'
 import type { WorkspaceFolder } from 'vscode'
 import { parseTodosFromText } from './commentParser'
@@ -11,8 +8,6 @@ import type { ExtensionConfig } from './config'
 import type { FileTodos } from './types'
 
 const SEARCH_PATTERN = '\\btodo\\b'
-const RIPGREP_PATH = resolveRipgrepPath()
-const require = createRequire(import.meta.url)
 
 export async function scanWorkspace(config: ExtensionConfig): Promise<FileTodos[]> {
   const folders = workspace.workspaceFolders ?? []
@@ -75,7 +70,7 @@ function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig): Promise<s
 
     args.push('--regexp', SEARCH_PATTERN, folder.uri.fsPath)
 
-    const process = spawn(RIPGREP_PATH, args, {
+    const process = spawn(rgPath, args, {
       cwd: folder.uri.fsPath,
       windowsHide: true,
     })
@@ -99,18 +94,6 @@ function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig): Promise<s
       reject(new Error(Buffer.concat(stderr).toString('utf8') || `ripgrep exited with code ${code}`))
     })
   })
-}
-
-function resolveRipgrepPath(): string {
-  const bundleDirectory = path.dirname(fileURLToPath(import.meta.url))
-  const bundledBinaryPath = path.join(bundleDirectory, 'bin', process.platform === 'win32' ? 'rg.exe' : 'rg')
-  if (existsSync(bundledBinaryPath)) return bundledBinaryPath
-
-  const arch = process.env.npm_config_arch || process.arch
-  const binaryName = process.platform === 'win32' ? 'rg.exe' : 'rg'
-  const platformPkg = `@vscode/ripgrep-${process.platform}-${arch}`
-
-  return require.resolve(`${platformPkg}/bin/${binaryName}`)
 }
 
 function createFileTodos(uri: Uri, text: string, folder: WorkspaceFolder): FileTodos {
