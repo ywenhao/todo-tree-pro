@@ -35,9 +35,11 @@
   "main": "./dist/extension.mjs",
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
+    "build": "pnpm run package",
     "compile": "tsdown && node scripts/copy-ripgrep.mjs",
     "watch": "tsdown --watch",
     "check": "tsc --noEmit -p ./",
+    "package": "pnpm dlx @vscode/vsce package --no-dependencies --out todo-tree-pro.vsix",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
