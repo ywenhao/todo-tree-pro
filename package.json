@@ -1,7 +1,7 @@
 {
   "name": "todo-tree-pro",
   "displayName": "TODO Tree Pro",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "description": "A fast TODO explorer for VS Code with tree/list views, ripgrep-powered scans, and editor highlights.",
   "categories": [
