@@ -34,4 +34,5 @@ export interface TodoTreeNode {
   uri?: Uri
   todo?: TodoMatch
   children?: TodoTreeNode[]
+  collapsedByDefault?: boolean
 }

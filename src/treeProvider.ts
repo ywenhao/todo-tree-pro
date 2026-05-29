@@ -3,6 +3,8 @@ import type { Disposable, Event, ProviderResult, TreeDataProvider } from 'vscode
 import type { TodoStore } from './store'
 import type { FileTodos, TodoMatch, TodoTreeNode, TodoViewMode } from './types'
 
+const COLLAPSED_BY_DEFAULT_FOLDERS = new Set(['.agents', 'skills'])
+
 export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   private readonly changed = new EventEmitter<TodoTreeNode | undefined | null | void>()
   private readonly storeSubscription: Disposable
@@ -30,10 +32,7 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   getTreeItem(element: TodoTreeNode): TreeItem {
     if (element.type === 'todo') return createTodoItem(element)
 
-    const item = new TreeItem(
-      element.label,
-      element.children?.length ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None,
-    )
+    const item = new TreeItem(element.label, getCollapsibleState(element))
     item.id = element.id
     item.description = element.description
     item.resourceUri = element.uri
@@ -54,6 +53,12 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
     this.storeSubscription.dispose()
     this.changed.dispose()
   }
+}
+
+function getCollapsibleState(element: TodoTreeNode): TreeItemCollapsibleState {
+  if (!element.children?.length) return TreeItemCollapsibleState.None
+
+  return element.collapsedByDefault ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.Expanded
 }
 
 function createTodoItem(element: TodoTreeNode): TreeItem {
@@ -112,6 +117,7 @@ function buildTreeNodes(files: FileTodos[]): TodoTreeNode[] {
           id,
           label: part,
           children: [],
+          collapsedByDefault: isCollapsedByDefaultFolder(part),
         }
         parent.children!.push(child)
       }
@@ -146,6 +152,10 @@ function buildTreeNodes(files: FileTodos[]): TodoTreeNode[] {
   }
 
   return roots
+}
+
+function isCollapsedByDefaultFolder(name: string): boolean {
+  return COLLAPSED_BY_DEFAULT_FOLDERS.has(name)
 }
 
 function getOrCreateNode(nodes: Map<string, TodoTreeNode>, key: string, create: TodoTreeNode): TodoTreeNode {
