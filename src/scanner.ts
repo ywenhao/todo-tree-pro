@@ -1,6 +1,9 @@
 import { spawn } from 'node:child_process'
+import { chmodSync, existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { stat } from 'node:fs/promises'
-import { rgPath } from '@vscode/ripgrep'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { Uri, workspace } from 'vscode'
 import type { WorkspaceFolder } from 'vscode'
 import { parseTodosFromText } from './commentParser'
@@ -8,6 +11,8 @@ import type { ExtensionConfig } from './config'
 import type { FileTodos } from './types'
 
 const SEARCH_PATTERN = '\\btodo\\b'
+const require = createRequire(import.meta.url)
+const RIPGREP_PATH = resolveRipgrepPath()
 
 export async function scanWorkspace(config: ExtensionConfig): Promise<FileTodos[]> {
   const folders = workspace.workspaceFolders ?? []
@@ -50,7 +55,7 @@ export function scanOpenDocumentText(uri: Uri, text: string, config: ExtensionCo
 }
 
 async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Promise<FileTodos[]> {
-  const candidateFiles = await runRipgrep(folder, config)
+  const candidateFiles = await runRipgrep(folder, config, RIPGREP_PATH)
   const fileTodos = await Promise.all(
     candidateFiles.map(async (filePath) => scanDocumentUri(Uri.file(filePath), config)),
   )
@@ -58,7 +63,7 @@ async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Pro
   return fileTodos.filter((file): file is FileTodos => !!file)
 }
 
-function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig): Promise<string[]> {
+function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig, ripgrepPath: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
     const args = ['--files-with-matches', '--ignore-case', '--hidden', '--glob', '!**/.git/**']
 
@@ -70,7 +75,7 @@ function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig): Promise<s
 
     args.push('--regexp', SEARCH_PATTERN, folder.uri.fsPath)
 
-    const process = spawn(rgPath, args, {
+    const process = spawn(ripgrepPath, args, {
       cwd: folder.uri.fsPath,
       windowsHide: true,
     })
@@ -94,6 +99,31 @@ function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig): Promise<s
       reject(new Error(Buffer.concat(stderr).toString('utf8') || `ripgrep exited with code ${code}`))
     })
   })
+}
+
+function resolveRipgrepPath(): string {
+  const bundleDirectory = path.dirname(fileURLToPath(import.meta.url))
+  const arch = process.env.npm_config_arch || process.arch
+  const target = process.platform === 'linux' && arch === 'arm' ? 'linux-armhf' : `${process.platform}-${arch}`
+  const binaryName = process.platform === 'win32' ? 'rg.exe' : 'rg'
+  const bundledBinaryPath = path.join(bundleDirectory, 'bin', target, binaryName)
+
+  if (existsSync(bundledBinaryPath)) {
+    ensureExecutable(bundledBinaryPath)
+    return bundledBinaryPath
+  }
+
+  return require.resolve(`@vscode/ripgrep-${process.platform}-${arch}/bin/${binaryName}`)
+}
+
+function ensureExecutable(binaryPath: string): void {
+  if (process.platform === 'win32') return
+
+  try {
+    chmodSync(binaryPath, 0o755)
+  } catch {
+    // Spawning the binary will report the real error if chmod is unavailable.
+  }
 }
 
 function createFileTodos(uri: Uri, text: string, folder: WorkspaceFolder): FileTodos {

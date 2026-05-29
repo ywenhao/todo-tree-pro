@@ -1,13 +1,15 @@
 .vscode/**
+.github/**
 .gitignore
 fixtures/**
+scripts/**
 src/**
 .oxfmtrc.json
 .oxlintrc.json
 tsdown.config.ts
 tsconfig.json
 vitest.config.ts
-pnpm-lock.yaml
+package-lock.json
 *.vsix
 resources/icon.svg
 dist/**/*.map
