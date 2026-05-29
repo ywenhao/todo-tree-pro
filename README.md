@@ -15,7 +15,10 @@
 - Scan workspaces quickly with `@vscode/ripgrep`.
 - Refresh automatically when files change or when open text buffers are edited.
 - Highlight `TODO` and `TODO:` markers directly in the editor.
-- Recognize common comment styles, including `// TODO`, `/** TODO */`, `/// TODO`, `# TODO`, `-- TODO`, `<!-- TODO -->`, and multi-line block comments.
+- Recognize common comment styles for JavaScript/TypeScript, Python, Go, Rust,
+  Java, C/C++, C#, HTML, Markdown, CSS, SQL, Shell, PowerShell, Ruby, Lua,
+  Haskell, Elixir, Svelte, Blade, Razor, Vimscript, Batch, LaTeX, Lisp, and
+  INI-style files.
 
 ## Commands
 

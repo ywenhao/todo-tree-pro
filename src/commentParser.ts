@@ -6,21 +6,53 @@ interface CommentSpan {
   end: number
 }
 
+interface LineCommentToken {
+  token: string
+  placement?: 'any' | 'line-start' | 'hash'
+  caseInsensitive?: boolean
+  requireTrailingBoundary?: boolean
+}
+
+interface BlockCommentPair {
+  startToken: string
+  endToken: string
+  startPlacement?: 'any' | 'line-start'
+  endPlacement?: 'any' | 'line-start'
+}
+
 interface ScannerState {
   inBlock: boolean
   blockEnd: string
+  blockEndPlacement: 'any' | 'line-start'
 }
 
 const TODO_PATTERN = /\btodo\b\s*:?/gi
 
-const LINE_COMMENT_TOKENS = ['//', '#', '--', ';', '%', '"']
+const LINE_COMMENT_TOKENS: LineCommentToken[] = [
+  { token: '//' },
+  { token: '#' },
+  { token: '--' },
+  { token: ';', placement: 'line-start' },
+  { token: '%', placement: 'line-start' },
+  { token: '"', placement: 'line-start' },
+  { token: '::', placement: 'line-start' },
+  { token: 'REM', placement: 'line-start', caseInsensitive: true, requireTrailingBoundary: true },
+]
 
-const BLOCK_COMMENT_PAIRS = [
-  ['/*', '*/'],
-  ['<!--', '-->'],
-  ['{/*', '*/}'],
-  ['(*', '*)'],
-] as const
+const BLOCK_COMMENT_PAIRS: BlockCommentPair[] = [
+  { startToken: '/*', endToken: '*/' },
+  { startToken: '<!--', endToken: '-->' },
+  { startToken: '{/*', endToken: '*/}' },
+  { startToken: '(*', endToken: '*)' },
+  { startToken: '--[[', endToken: ']]' },
+  { startToken: '{-', endToken: '-}' },
+  { startToken: '<#', endToken: '#>' },
+  { startToken: '{#', endToken: '#}' },
+  { startToken: '{{--', endToken: '--}}' },
+  { startToken: '@*', endToken: '*@' },
+  { startToken: '<%#', endToken: '%>' },
+  { startToken: '=begin', endToken: '=end', startPlacement: 'line-start', endPlacement: 'line-start' },
+]
 
 export function parseTodosFromText(text: string, uri: Uri, workspaceFolder: WorkspaceFolder | undefined): TodoMatch[] {
   const lines = text.split(/\r?\n/)
@@ -28,6 +60,7 @@ export function parseTodosFromText(text: string, uri: Uri, workspaceFolder: Work
   const state: ScannerState = {
     inBlock: false,
     blockEnd: '',
+    blockEndPlacement: 'any',
   }
 
   for (let index = 0; index < lines.length; index++) {
@@ -46,7 +79,7 @@ function collectCommentSpans(line: string, state: ScannerState): CommentSpan[] {
 
   while (offset < line.length) {
     if (state.inBlock) {
-      const endIndex = line.indexOf(state.blockEnd, offset)
+      const endIndex = findBlockEnd(line, offset, state.blockEnd, state.blockEndPlacement)
       if (endIndex === -1) {
         spans.push({ start: offset, end: line.length })
         return spans
@@ -56,6 +89,7 @@ function collectCommentSpans(line: string, state: ScannerState): CommentSpan[] {
       offset = endIndex + state.blockEnd.length
       state.inBlock = false
       state.blockEnd = ''
+      state.blockEndPlacement = 'any'
       continue
     }
 
@@ -74,12 +108,18 @@ function collectCommentSpans(line: string, state: ScannerState): CommentSpan[] {
 
     if (nextBlockComment) {
       const contentStart = nextBlockComment.index + nextBlockComment.startToken.length
-      const endIndex = line.indexOf(nextBlockComment.endToken, contentStart)
+      const endIndex = findBlockEnd(
+        line,
+        contentStart,
+        nextBlockComment.endToken,
+        nextBlockComment.endPlacement ?? 'any',
+      )
 
       if (endIndex === -1) {
         spans.push({ start: contentStart, end: line.length })
         state.inBlock = true
         state.blockEnd = nextBlockComment.endToken
+        state.blockEndPlacement = nextBlockComment.endPlacement ?? 'any'
         break
       }
 
@@ -95,16 +135,16 @@ function findNextLineComment(line: string, offset: number): { index: number; tok
   let best: { index: number; token: string } | undefined
 
   for (const token of LINE_COMMENT_TOKENS) {
-    let index = line.indexOf(token, offset)
+    let index = findTokenIndex(line, token, offset)
 
     while (index !== -1) {
       if (isLikelyCommentStart(line, index, token)) {
-        if (!best || index < best.index) best = { index, token }
+        if (!best || index < best.index) best = { index, token: token.token }
 
         break
       }
 
-      index = line.indexOf(token, index + token.length)
+      index = findTokenIndex(line, token, index + token.token.length)
     }
   }
 
@@ -114,26 +154,58 @@ function findNextLineComment(line: string, offset: number): { index: number; tok
 function findNextBlockComment(
   line: string,
   offset: number,
-): { index: number; startToken: string; endToken: string } | undefined {
-  let best: { index: number; startToken: string; endToken: string } | undefined
+): (BlockCommentPair & { index: number }) | undefined {
+  let best: (BlockCommentPair & { index: number }) | undefined
 
-  for (const [startToken, endToken] of BLOCK_COMMENT_PAIRS) {
-    const index = line.indexOf(startToken, offset)
-    if (index !== -1 && (!best || index < best.index)) best = { index, startToken, endToken }
+  for (const pair of BLOCK_COMMENT_PAIRS) {
+    const index = line.indexOf(pair.startToken, offset)
+    if (index === -1 || !isLikelyBlockStart(line, index, pair)) continue
+    if (!best || index < best.index) best = { ...pair, index }
   }
 
   return best
 }
 
-function isLikelyCommentStart(line: string, index: number, token: string): boolean {
-  if (token === '"' || token === ';' || token === '%') return line.slice(0, index).trim() === ''
+function findBlockEnd(line: string, offset: number, token: string, placement: 'any' | 'line-start'): number {
+  let index = line.indexOf(token, offset)
 
-  if (token !== '#') return true
+  while (index !== -1) {
+    if (placement !== 'line-start' || line.slice(0, index).trim() === '') return index
+
+    index = line.indexOf(token, index + token.length)
+  }
+
+  return -1
+}
+
+function findTokenIndex(line: string, token: LineCommentToken, offset: number): number {
+  if (!token.caseInsensitive) return line.indexOf(token.token, offset)
+
+  return line.toLocaleLowerCase().indexOf(token.token.toLocaleLowerCase(), offset)
+}
+
+function isLikelyCommentStart(line: string, index: number, token: LineCommentToken): boolean {
+  if (token.placement === 'line-start') {
+    return line.slice(0, index).trim() === '' && hasTrailingBoundary(line, index, token)
+  }
+
+  if (token.token !== '#') return hasTrailingBoundary(line, index, token)
 
   const before = line.slice(0, index).trim()
-  if (before === '') return true
+  if (before === '') return hasTrailingBoundary(line, index, token)
 
-  return /\s$/.test(line[index - 1] ?? '')
+  return /\s$/.test(line[index - 1] ?? '') && hasTrailingBoundary(line, index, token)
+}
+
+function isLikelyBlockStart(line: string, index: number, pair: BlockCommentPair): boolean {
+  return pair.startPlacement !== 'line-start' || line.slice(0, index).trim() === ''
+}
+
+function hasTrailingBoundary(line: string, index: number, token: LineCommentToken): boolean {
+  if (!token.requireTrailingBoundary) return true
+
+  const next = line[index + token.token.length]
+  return next === undefined || /\s/.test(next)
 }
 
 function findTodosInComment(

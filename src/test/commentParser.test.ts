@@ -17,6 +17,21 @@ describe('parseTodosFromText', () => {
       '/*',
       ' * TODO: ninth',
       ' */',
+      '; TODO tenth',
+      '% TODO eleventh',
+      '" TODO twelfth',
+      'REM TODO thirteenth',
+      ':: TODO fourteenth',
+      '<# TODO fifteenth #>',
+      '--[[ TODO sixteenth ]]',
+      '{- TODO seventeenth -}',
+      '{# TODO eighteenth #}',
+      '{{-- TODO nineteenth --}}',
+      '@* TODO twentieth *@',
+      '<%# TODO twenty-first %>',
+      '=begin',
+      'TODO twenty-second',
+      '=end',
     ].join('\n')
     const uri = {
       scheme: 'file',
@@ -25,7 +40,7 @@ describe('parseTodosFromText', () => {
     } as Uri
     const todos = parseTodosFromText(text, uri, undefined)
 
-    expect(todos).toHaveLength(9)
+    expect(todos).toHaveLength(22)
     expect(todos.map((todo) => todo.severity)).toEqual([
       'plain',
       'plain',
@@ -36,10 +51,27 @@ describe('parseTodosFromText', () => {
       'plain',
       'plain',
       'colon',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
+      'plain',
     ])
-    expect(todos.map((todo) => todo.line)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 10])
+    expect(todos.map((todo) => todo.line)).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25,
+    ])
     expect(todos[2].text).toBe('third')
     expect(todos[3].text).toBe('fourth')
     expect(todos[7].text).toBe('html eighth')
+    expect(todos[14].text).toBe('fifteenth')
+    expect(todos[21].text).toBe('twenty-second')
   })
 })
