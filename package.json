@@ -68,25 +68,25 @@
   "contributes": {
     "commands": [
       {
-        "command": "reactiveTodoTree.refresh",
+        "command": "todoTreePro.refresh",
         "title": "Refresh",
         "category": "TODO Tree",
         "icon": "$(refresh)"
       },
       {
-        "command": "reactiveTodoTree.viewAsTree",
+        "command": "todoTreePro.viewAsTree",
         "title": "Tree",
         "category": "TODO Tree",
         "icon": "$(list-tree)"
       },
       {
-        "command": "reactiveTodoTree.viewAsList",
+        "command": "todoTreePro.viewAsList",
         "title": "List",
         "category": "TODO Tree",
         "icon": "$(list-flat)"
       },
       {
-        "command": "reactiveTodoTree.openTodo",
+        "command": "todoTreePro.openTodo",
         "title": "Open TODO",
         "category": "TODO Tree"
       }
@@ -94,16 +94,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "reactiveTodoTree",
+          "id": "todoTreePro",
           "title": "TODO Tree",
           "icon": "resources/activity.svg"
         }
       ]
     },
     "views": {
-      "reactiveTodoTree": [
+      "todoTreePro": [
         {
-          "id": "reactiveTodoTree.explorer",
+          "id": "todoTreePro.explorer",
           "name": "TODOs",
           "icon": "resources/activity.svg",
           "contextualTitle": "TODO Tree"
@@ -113,33 +113,33 @@
     "menus": {
       "view/title": [
         {
-          "command": "reactiveTodoTree.viewAsTree",
-          "when": "view == reactiveTodoTree.explorer && reactiveTodoTree.viewMode != tree",
+          "command": "todoTreePro.viewAsTree",
+          "when": "view == todoTreePro.explorer && todoTreePro.viewMode != tree",
           "group": "navigation@1"
         },
         {
-          "command": "reactiveTodoTree.viewAsList",
-          "when": "view == reactiveTodoTree.explorer && reactiveTodoTree.viewMode != list",
+          "command": "todoTreePro.viewAsList",
+          "when": "view == todoTreePro.explorer && todoTreePro.viewMode != list",
           "group": "navigation@2"
         },
         {
-          "command": "reactiveTodoTree.refresh",
-          "when": "view == reactiveTodoTree.explorer",
+          "command": "todoTreePro.refresh",
+          "when": "view == todoTreePro.explorer",
           "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "reactiveTodoTree.openTodo",
-          "when": "view == reactiveTodoTree.explorer && viewItem == todo",
+          "command": "todoTreePro.openTodo",
+          "when": "view == todoTreePro.explorer && viewItem == todo",
           "group": "inline"
         }
       ]
     },
     "configuration": {
-      "title": "Reactive TODO Tree",
+      "title": "TODO Tree Pro",
       "properties": {
-        "reactiveTodoTree.excludeFolders": {
+        "todoTreePro.excludeFolders": {
           "type": "array",
           "default": [
             ".git",
@@ -156,7 +156,7 @@
           },
           "description": "Folder names excluded from TODO scans wherever they appear in the workspace."
         },
-        "reactiveTodoTree.collapsedFolders": {
+        "todoTreePro.collapsedFolders": {
           "type": "array",
           "default": [
             ".agents",
@@ -167,23 +167,23 @@
           },
           "description": "Folder names collapsed by default in the tree view."
         },
-        "reactiveTodoTree.useGitignore": {
+        "todoTreePro.useGitignore": {
           "type": "boolean",
           "default": true,
           "description": "Respect workspace .gitignore patterns when scanning TODOs."
         },
-        "reactiveTodoTree.maxFileSize": {
+        "todoTreePro.maxFileSize": {
           "type": "number",
           "default": 5242880,
           "minimum": 1024,
           "description": "Maximum file size in bytes for parsing TODO matches after ripgrep finds a candidate file."
         },
-        "reactiveTodoTree.highlight.enabled": {
+        "todoTreePro.highlight.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Highlight TODO and TODO: matches in visible editors."
         },
-        "reactiveTodoTree.scanOnTextChange": {
+        "todoTreePro.scanOnTextChange": {
           "type": "boolean",
           "default": true,
           "description": "Update the TODO view from unsaved text buffer changes."

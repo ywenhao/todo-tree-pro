@@ -33,14 +33,14 @@ Open the Command Palette and search for `TODO Tree`:
 
 ## Settings
 
-| Setting                              | Default                             | Description                                                               |
-| ------------------------------------ | ----------------------------------- | ------------------------------------------------------------------------- |
-| `reactiveTodoTree.excludeFolders`    | Common build and dependency folders | Folder names excluded wherever they appear in the workspace.              |
-| `reactiveTodoTree.collapsedFolders`  | `.agents`, `skills`                 | Folder names collapsed by default in the tree view.                       |
-| `reactiveTodoTree.useGitignore`      | `true`                              | Respect workspace `.gitignore` patterns when scanning TODOs.              |
-| `reactiveTodoTree.maxFileSize`       | `5242880`                           | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
-| `reactiveTodoTree.highlight.enabled` | `true`                              | Highlight TODO markers in visible editors.                                |
-| `reactiveTodoTree.scanOnTextChange`  | `true`                              | Update the TODO view from unsaved text buffer changes.                    |
+| Setting                         | Default                             | Description                                                               |
+| ------------------------------- | ----------------------------------- | ------------------------------------------------------------------------- |
+| `todoTreePro.excludeFolders`    | Common build and dependency folders | Folder names excluded wherever they appear in the workspace.              |
+| `todoTreePro.collapsedFolders`  | `.agents`, `skills`                 | Folder names collapsed by default in the tree view.                       |
+| `todoTreePro.useGitignore`      | `true`                              | Respect workspace `.gitignore` patterns when scanning TODOs.              |
+| `todoTreePro.maxFileSize`       | `5242880`                           | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
+| `todoTreePro.highlight.enabled` | `true`                              | Highlight TODO markers in visible editors.                                |
+| `todoTreePro.scanOnTextChange`  | `true`                              | Update the TODO view from unsaved text buffer changes.                    |
 
 ## Development
 

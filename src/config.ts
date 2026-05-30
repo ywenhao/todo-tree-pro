@@ -10,7 +10,7 @@ export interface ExtensionConfig {
 }
 
 export function getConfig(): ExtensionConfig {
-  const config = workspace.getConfiguration('reactiveTodoTree')
+  const config = workspace.getConfiguration('todoTreePro')
 
   return {
     excludeFolders: config.get<string[]>('excludeFolders', [

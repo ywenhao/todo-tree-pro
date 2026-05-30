@@ -74,7 +74,7 @@ function createTodoItem(element: TodoTreeNode): TreeItem {
   item.contextValue = 'todo'
   item.tooltip = `${todo.relativePath}:${todo.line + 1}:${todo.character + 1}`
   item.command = {
-    command: 'reactiveTodoTree.openTodo',
+    command: 'todoTreePro.openTodo',
     title: 'Open TODO',
     arguments: [todo],
   }

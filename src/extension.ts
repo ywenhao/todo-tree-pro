@@ -15,9 +15,9 @@ const extension = defineExtension(() => {
   useDisposable(store)
   useDisposable(provider)
   useDisposable(highlighter)
-  useVscodeContext('reactiveTodoTree.viewMode', viewMode)
+  useVscodeContext('todoTreePro.viewMode', viewMode)
 
-  const treeView = window.createTreeView('reactiveTodoTree.explorer', {
+  const treeView = window.createTreeView('todoTreePro.explorer', {
     treeDataProvider: provider,
     showCollapseAll: true,
   })
@@ -38,10 +38,10 @@ const extension = defineExtension(() => {
   }
   const refreshDebounced = debounce(() => void refreshNow(), 180)
 
-  useCommand('reactiveTodoTree.refresh', refreshNow)
-  useCommand('reactiveTodoTree.viewAsTree', () => setMode('tree'))
-  useCommand('reactiveTodoTree.viewAsList', () => setMode('list'))
-  useCommand('reactiveTodoTree.openTodo', async (value: TodoMatch | unknown) => {
+  useCommand('todoTreePro.refresh', refreshNow)
+  useCommand('todoTreePro.viewAsTree', () => setMode('tree'))
+  useCommand('todoTreePro.viewAsList', () => setMode('list'))
+  useCommand('todoTreePro.openTodo', async (value: TodoMatch | unknown) => {
     const todo = isTodoNode(value) ? value.todo : (value as TodoMatch | undefined)
     if (!todo) return
 
@@ -95,7 +95,7 @@ function registerWorkspaceListeners(
   useDisposable(workspace.onDidChangeWorkspaceFolders(() => refreshDebounced()))
   useDisposable(
     workspace.onDidChangeConfiguration((event) => {
-      if (!event.affectsConfiguration('reactiveTodoTree')) return
+      if (!event.affectsConfiguration('todoTreePro')) return
 
       store.updateConfig()
       highlighter.updateVisibleEditors()
