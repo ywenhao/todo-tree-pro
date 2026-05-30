@@ -1,13 +1,13 @@
 import { EventEmitter, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import type { Disposable, Event, ProviderResult, TreeDataProvider } from 'vscode'
+import { getConfig } from './config'
 import type { TodoStore } from './store'
 import type { FileTodos, TodoMatch, TodoTreeNode, TodoViewMode } from './types'
-
-const COLLAPSED_BY_DEFAULT_FOLDERS = new Set(['.agents', 'skills'])
 
 export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   private readonly changed = new EventEmitter<TodoTreeNode | undefined | null | void>()
   private readonly storeSubscription: Disposable
+  private collapsedFolders = getCollapsedFolders()
   private mode: TodoViewMode = 'tree'
 
   readonly onDidChangeTreeData: Event<TodoTreeNode | undefined | null | void> = this.changed.event
@@ -26,6 +26,7 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   }
 
   refresh(): void {
+    this.collapsedFolders = getCollapsedFolders()
     this.changed.fire()
   }
 
@@ -46,7 +47,9 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   getChildren(element?: TodoTreeNode): ProviderResult<TodoTreeNode[]> {
     if (element) return element.children ?? []
 
-    return this.mode === 'tree' ? buildTreeNodes(this.store.allFiles) : buildListNodes(this.store.allTodos)
+    return this.mode === 'tree'
+      ? buildTreeNodes(this.store.allFiles, this.collapsedFolders)
+      : buildListNodes(this.store.allTodos)
   }
 
   dispose(): void {
@@ -92,7 +95,7 @@ function buildListNodes(todos: TodoMatch[]): TodoTreeNode[] {
     }))
 }
 
-function buildTreeNodes(files: FileTodos[]): TodoTreeNode[] {
+function buildTreeNodes(files: FileTodos[], collapsedFolders: Set<string>): TodoTreeNode[] {
   const workspaceRoots = new Map<string, TodoTreeNode>()
 
   for (const file of files) {
@@ -117,7 +120,7 @@ function buildTreeNodes(files: FileTodos[]): TodoTreeNode[] {
           id,
           label: part,
           children: [],
-          collapsedByDefault: isCollapsedByDefaultFolder(part),
+          collapsedByDefault: isCollapsedByDefaultFolder(part, collapsedFolders),
         }
         parent.children!.push(child)
       }
@@ -154,8 +157,16 @@ function buildTreeNodes(files: FileTodos[]): TodoTreeNode[] {
   return roots
 }
 
-function isCollapsedByDefaultFolder(name: string): boolean {
-  return COLLAPSED_BY_DEFAULT_FOLDERS.has(name)
+function isCollapsedByDefaultFolder(name: string, collapsedFolders: Set<string>): boolean {
+  return collapsedFolders.has(name)
+}
+
+function getCollapsedFolders(): Set<string> {
+  return new Set(
+    getConfig()
+      .collapsedFolders.map((folder) => folder.trim())
+      .filter(Boolean),
+  )
 }
 
 function getOrCreateNode(nodes: Map<string, TodoTreeNode>, key: string, create: TodoTreeNode): TodoTreeNode {

@@ -139,20 +139,38 @@
     "configuration": {
       "title": "Reactive TODO Tree",
       "properties": {
-        "reactiveTodoTree.excludeGlobs": {
+        "reactiveTodoTree.excludeFolders": {
           "type": "array",
           "default": [
-            "**/.git/**",
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-            "**/.next/**",
-            "**/coverage/**"
+            ".git",
+            ".output",
+            ".out",
+            "node_modules",
+            "dist",
+            "build",
+            ".next",
+            "coverage"
           ],
           "items": {
             "type": "string"
           },
-          "description": "Glob patterns excluded from TODO scans."
+          "description": "Folder names excluded from TODO scans wherever they appear in the workspace."
+        },
+        "reactiveTodoTree.collapsedFolders": {
+          "type": "array",
+          "default": [
+            ".agents",
+            "skills"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Folder names collapsed by default in the tree view."
+        },
+        "reactiveTodoTree.useGitignore": {
+          "type": "boolean",
+          "default": true,
+          "description": "Respect workspace .gitignore patterns when scanning TODOs."
         },
         "reactiveTodoTree.maxFileSize": {
           "type": "number",

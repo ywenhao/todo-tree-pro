@@ -35,7 +35,9 @@ Open the Command Palette and search for `TODO Tree`:
 
 | Setting                              | Default                             | Description                                                               |
 | ------------------------------------ | ----------------------------------- | ------------------------------------------------------------------------- |
-| `reactiveTodoTree.excludeGlobs`      | Common build and dependency folders | Glob patterns excluded from TODO scans.                                   |
+| `reactiveTodoTree.excludeFolders`    | Common build and dependency folders | Folder names excluded wherever they appear in the workspace.              |
+| `reactiveTodoTree.collapsedFolders`  | `.agents`, `skills`                 | Folder names collapsed by default in the tree view.                       |
+| `reactiveTodoTree.useGitignore`      | `true`                              | Respect workspace `.gitignore` patterns when scanning TODOs.              |
 | `reactiveTodoTree.maxFileSize`       | `5242880`                           | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
 | `reactiveTodoTree.highlight.enabled` | `true`                              | Highlight TODO markers in visible editors.                                |
 | `reactiveTodoTree.scanOnTextChange`  | `true`                              | Update the TODO view from unsaved text buffer changes.                    |

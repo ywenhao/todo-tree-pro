@@ -8,14 +8,18 @@ import { Uri, workspace } from 'vscode'
 import type { WorkspaceFolder } from 'vscode'
 import { parseTodosFromText } from './commentParser'
 import type { ExtensionConfig } from './config'
+import { getExcludeGlobs, isExcludedRelativePath, parseGitignoreRules } from './excludes'
+import type { GitignoreRule } from './excludes'
 import type { FileTodos } from './types'
 
 const SEARCH_PATTERN = '\\btodo\\b'
 const require = createRequire(import.meta.url)
 const RIPGREP_PATH = resolveRipgrepPath()
+const gitignoreRulesByFolder = new Map<string, GitignoreRule[]>()
 
 export async function scanWorkspace(config: ExtensionConfig): Promise<FileTodos[]> {
   const folders = workspace.workspaceFolders ?? []
+  gitignoreRulesByFolder.clear()
   const scans = folders.map((folder) => scanFolder(folder, config))
   const results = await Promise.all(scans)
 
@@ -28,7 +32,7 @@ export async function scanDocumentUri(uri: Uri, config: ExtensionConfig): Promis
   const folder = workspace.getWorkspaceFolder(uri)
   if (!folder) return undefined
 
-  if (isExcluded(uri, config)) return undefined
+  if (await isExcluded(uri, config, folder)) return undefined
 
   try {
     const metadata = await stat(uri.fsPath)
@@ -49,7 +53,7 @@ export function scanOpenDocumentText(uri: Uri, text: string, config: ExtensionCo
   const folder = workspace.getWorkspaceFolder(uri)
   if (!folder) return undefined
 
-  if (isExcluded(uri, config)) return undefined
+  if (isExcludedSync(uri, config, folder)) return undefined
 
   return createFileTodos(uri, text, folder)
 }
@@ -63,18 +67,22 @@ async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Pro
   return fileTodos.filter((file): file is FileTodos => !!file)
 }
 
-function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig, ripgrepPath: string): Promise<string[]> {
+async function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig, ripgrepPath: string): Promise<string[]> {
+  const args = ['--files-with-matches', '--ignore-case', '--hidden', '--glob', '!**/.git/**']
+
+  if (!config.useGitignore) args.push('--no-ignore')
+
+  const folderExcludeGlobs = getExcludeGlobs(config)
+
+  for (const glob of folderExcludeGlobs) {
+    if (!glob) continue
+
+    args.push('--glob', `!${glob}`)
+  }
+
+  args.push('--regexp', SEARCH_PATTERN, folder.uri.fsPath)
+
   return new Promise((resolve, reject) => {
-    const args = ['--files-with-matches', '--ignore-case', '--hidden', '--glob', '!**/.git/**']
-
-    for (const glob of config.excludeGlobs) {
-      if (!glob) continue
-
-      args.push('--glob', `!${glob}`)
-    }
-
-    args.push('--regexp', SEARCH_PATTERN, folder.uri.fsPath)
-
     const process = spawn(ripgrepPath, args, {
       cwd: folder.uri.fsPath,
       windowsHide: true,
@@ -138,48 +146,40 @@ function createFileTodos(uri: Uri, text: string, folder: WorkspaceFolder): FileT
   }
 }
 
-function isExcluded(uri: Uri, config: ExtensionConfig): boolean {
+async function isExcluded(uri: Uri, config: ExtensionConfig, folder: WorkspaceFolder): Promise<boolean> {
   const relativePath = workspace.asRelativePath(uri, false).replace(/\\/g, '/')
+  const gitignoreRules = config.useGitignore ? await getGitignoreRules(folder) : []
 
-  return config.excludeGlobs.some((glob) => globMatches(glob, relativePath))
+  return isExcludedRelativePath(relativePath, config, gitignoreRules)
 }
 
-function globMatches(glob: string, relativePath: string): boolean {
-  const normalized = glob.replace(/\\/g, '/').replace(/^!/, '')
-  let regex = '^'
+function isExcludedSync(uri: Uri, config: ExtensionConfig, folder: WorkspaceFolder): boolean {
+  const relativePath = workspace.asRelativePath(uri, false).replace(/\\/g, '/')
+  const gitignoreRules = config.useGitignore ? (gitignoreRulesByFolder.get(folder.uri.toString()) ?? []) : []
 
-  for (let index = 0; index < normalized.length; index++) {
-    const character = normalized[index]
-    const next = normalized[index + 1]
+  return isExcludedRelativePath(relativePath, config, gitignoreRules)
+}
 
-    if (character === '*' && next === '*') {
-      if (normalized[index + 2] === '/') {
-        regex += '(?:.*/)?'
-        index += 2
-      } else {
-        regex += '.*'
-        index += 1
-      }
-      continue
-    }
+async function getGitignoreRules(folder: WorkspaceFolder): Promise<GitignoreRule[]> {
+  const cacheKey = folder.uri.toString()
+  const cached = gitignoreRulesByFolder.get(cacheKey)
+  if (cached) return cached
 
-    if (character === '*') {
-      regex += '[^/]*'
-      continue
-    }
+  const rules = await readGitignoreRules(folder)
+  gitignoreRulesByFolder.set(cacheKey, rules)
 
-    if (character === '?') {
-      regex += '[^/]'
-      continue
-    }
+  return rules
+}
 
-    regex += escapeRegex(character)
+async function readGitignoreRules(folder: WorkspaceFolder): Promise<GitignoreRule[]> {
+  const gitignoreUri = Uri.joinPath(folder.uri, '.gitignore')
+
+  try {
+    const bytes = await workspace.fs.readFile(gitignoreUri)
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
+
+    return parseGitignoreRules(text)
+  } catch {
+    return []
   }
-
-  regex += '$'
-  return new RegExp(regex).test(relativePath)
-}
-
-function escapeRegex(value: string): string {
-  return /[\\^$+?.()|[\]{}]/.test(value) ? `\\${value}` : value
 }
