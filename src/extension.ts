@@ -6,9 +6,9 @@ import { TodoTreeProvider, isTodoNode } from './treeProvider'
 import { TodoHighlighter } from './highlighter'
 import { debounce } from './debounce'
 
-const extension = defineExtension(() => {
+const extension = defineExtension((context) => {
   const store = new TodoStore()
-  const provider = new TodoTreeProvider(store)
+  const provider = new TodoTreeProvider(store, context.extensionUri)
   const highlighter = new TodoHighlighter()
   const viewMode = ref<TodoViewMode>('tree')
 

@@ -127,13 +127,6 @@
           "when": "view == todoTreePro.explorer",
           "group": "navigation@3"
         }
-      ],
-      "view/item/context": [
-        {
-          "command": "todoTreePro.openTodo",
-          "when": "view == todoTreePro.explorer && viewItem == todo",
-          "group": "inline"
-        }
       ]
     },
     "configuration": {

@@ -1,4 +1,4 @@
-import { EventEmitter, ThemeColor, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
+import { EventEmitter, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import type { Disposable, Event, ProviderResult, TreeDataProvider } from 'vscode'
 import { getConfig } from './config'
 import type { TodoStore } from './store'
@@ -7,12 +7,20 @@ import type { FileTodos, TodoMatch, TodoTreeNode, TodoViewMode } from './types'
 export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   private readonly changed = new EventEmitter<TodoTreeNode | undefined | null | void>()
   private readonly storeSubscription: Disposable
+  private readonly todoIconUris: TodoIconUris
   private collapsedFolders = getCollapsedFolders()
   private mode: TodoViewMode = 'tree'
 
   readonly onDidChangeTreeData: Event<TodoTreeNode | undefined | null | void> = this.changed.event
 
-  constructor(private readonly store: TodoStore) {
+  constructor(
+    private readonly store: TodoStore,
+    extensionUri: Uri,
+  ) {
+    this.todoIconUris = {
+      colon: Uri.joinPath(extensionUri, 'resources', 'todo-colon.svg'),
+      plain: Uri.joinPath(extensionUri, 'resources', 'todo-plain.svg'),
+    }
     this.storeSubscription = this.store.onDidChange(() => this.refresh())
   }
 
@@ -31,7 +39,7 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   }
 
   getTreeItem(element: TodoTreeNode): TreeItem {
-    if (element.type === 'todo') return createTodoItem(element)
+    if (element.type === 'todo') return createTodoItem(element, this.todoIconUris)
 
     const item = new TreeItem(element.label, getCollapsibleState(element))
     item.id = element.id
@@ -58,22 +66,24 @@ export class TodoTreeProvider implements TreeDataProvider<TodoTreeNode> {
   }
 }
 
+interface TodoIconUris {
+  colon: Uri
+  plain: Uri
+}
+
 function getCollapsibleState(element: TodoTreeNode): TreeItemCollapsibleState {
   if (!element.children?.length) return TreeItemCollapsibleState.None
 
   return element.collapsedByDefault ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.Expanded
 }
 
-function createTodoItem(element: TodoTreeNode): TreeItem {
+function createTodoItem(element: TodoTreeNode, iconUris: TodoIconUris): TreeItem {
   const todo = element.todo!
   const item = new TreeItem(element.label, TreeItemCollapsibleState.None)
   item.id = element.id
   item.description = element.description
   item.resourceUri = todo.uri
-  item.iconPath =
-    todo.severity === 'colon'
-      ? new ThemeIcon('checklist', new ThemeColor('charts.yellow'))
-      : new ThemeIcon('comment', new ThemeColor('charts.blue'))
+  item.iconPath = todo.severity === 'colon' ? iconUris.colon : iconUris.plain
   item.contextValue = 'todo'
   item.tooltip = `${todo.relativePath}:${todo.line + 1}:${todo.character + 1}`
   item.command = {
