@@ -1,4 +1,4 @@
-import { EventEmitter, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
+import { EventEmitter, ThemeColor, ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import type { Disposable, Event, ProviderResult, TreeDataProvider } from 'vscode'
 import { getConfig } from './config'
 import type { TodoStore } from './store'
@@ -70,7 +70,10 @@ function createTodoItem(element: TodoTreeNode): TreeItem {
   item.id = element.id
   item.description = element.description
   item.resourceUri = todo.uri
-  item.iconPath = new ThemeIcon(todo.severity === 'colon' ? 'checklist' : 'comment')
+  item.iconPath =
+    todo.severity === 'colon'
+      ? new ThemeIcon('checklist', new ThemeColor('charts.yellow'))
+      : new ThemeIcon('comment', new ThemeColor('charts.blue'))
   item.contextValue = 'todo'
   item.tooltip = `${todo.relativePath}:${todo.line + 1}:${todo.character + 1}`
   item.command = {

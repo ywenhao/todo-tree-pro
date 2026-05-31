@@ -26,7 +26,7 @@ interface ScannerState {
   blockEndPlacement: 'any' | 'line-start'
 }
 
-const TODO_PATTERN = /\btodo\b\s*:?/gi
+const TODO_PATTERN = /\btodo\b:?/gi
 
 const LINE_COMMENT_TOKENS: LineCommentToken[] = [
   { token: '//' },

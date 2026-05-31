@@ -74,4 +74,20 @@ describe('parseTodosFromText', () => {
     expect(todos[14].text).toBe('fifteenth')
     expect(todos[21].text).toBe('twenty-second')
   })
+
+  it('keeps trailing spaces out of the TODO marker range', () => {
+    const uri = {
+      scheme: 'file',
+      fsPath: '/workspace/src/example.ts',
+      toString: () => 'file:///workspace/src/example.ts',
+    } as Uri
+    const todos = parseTodosFromText('// TODO    cancel worker\n// TODO: action', uri, undefined)
+
+    expect(todos).toHaveLength(2)
+    expect(todos[0].keyword).toBe('TODO')
+    expect(todos[0].character).toBe(3)
+    expect(todos[0].endCharacter).toBe(7)
+    expect(todos[1].keyword).toBe('TODO:')
+    expect(todos[1].endCharacter).toBe(8)
+  })
 })

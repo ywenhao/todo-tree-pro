@@ -14,7 +14,7 @@ import type { FileTodos } from './types'
 
 const SEARCH_PATTERN = '\\btodo\\b'
 const require = createRequire(import.meta.url)
-const RIPGREP_PATH = resolveRipgrepPath()
+let ripgrepPath: string | undefined
 const gitignoreRulesByFolder = new Map<string, GitignoreRule[]>()
 
 export async function scanWorkspace(config: ExtensionConfig): Promise<FileTodos[]> {
@@ -59,7 +59,7 @@ export function scanOpenDocumentText(uri: Uri, text: string, config: ExtensionCo
 }
 
 async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Promise<FileTodos[]> {
-  const candidateFiles = await runRipgrep(folder, config, RIPGREP_PATH)
+  const candidateFiles = await runRipgrep(folder, config, getRipgrepPath())
   const fileTodos = await Promise.all(
     candidateFiles.map(async (filePath) => scanDocumentUri(Uri.file(filePath), config)),
   )
@@ -109,19 +109,59 @@ async function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig, ripg
   })
 }
 
+function getRipgrepPath(): string {
+  ripgrepPath ??= resolveRipgrepPath()
+
+  return ripgrepPath
+}
+
 function resolveRipgrepPath(): string {
   const bundleDirectory = path.dirname(fileURLToPath(import.meta.url))
   const arch = process.env.npm_config_arch || process.arch
   const target = process.platform === 'linux' && arch === 'arm' ? 'linux-armhf' : `${process.platform}-${arch}`
   const binaryName = process.platform === 'win32' ? 'rg.exe' : 'rg'
   const bundledBinaryPath = path.join(bundleDirectory, 'bin', target, binaryName)
+  const packageName = `@vscode/ripgrep-${process.platform}-${arch}`
+  const packageBinarySpec = `${packageName}/bin/${binaryName}`
 
   if (existsSync(bundledBinaryPath)) {
     ensureExecutable(bundledBinaryPath)
     return bundledBinaryPath
   }
 
-  return require.resolve(`@vscode/ripgrep-${process.platform}-${arch}/bin/${binaryName}`)
+  const installedBinaryPath = resolveInstalledRipgrepBinary(packageBinarySpec)
+  if (installedBinaryPath) {
+    ensureExecutable(installedBinaryPath)
+    return installedBinaryPath
+  }
+
+  throw new Error(
+    [
+      `Missing ripgrep binary for ${target}.`,
+      `Tried ${path.relative(process.cwd(), bundledBinaryPath).replace(/\\/g, '/')} and ${packageBinarySpec}.`,
+      'Run npm install before F5 debugging, or run the matching npm run package:<target> script before packaging.',
+    ].join(' '),
+  )
+}
+
+function resolveInstalledRipgrepBinary(packageBinarySpec: string): string | undefined {
+  const directPath = resolveOptional(packageBinarySpec)
+  if (directPath) return directPath
+
+  const ripgrepEntry = resolveOptional('@vscode/ripgrep')
+  if (!ripgrepEntry) return undefined
+
+  const ripgrepRoot = path.resolve(path.dirname(ripgrepEntry), '..')
+
+  return resolveOptional(packageBinarySpec, [ripgrepRoot])
+}
+
+function resolveOptional(specifier: string, paths?: string[]): string | undefined {
+  try {
+    return paths ? require.resolve(specifier, { paths }) : require.resolve(specifier)
+  } catch {
+    return undefined
+  }
 }
 
 function ensureExecutable(binaryPath: string): void {
