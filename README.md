@@ -14,7 +14,8 @@
 - Switch between compact list mode and grouped tree mode.
 - Scan workspaces quickly with `@vscode/ripgrep`.
 - Refresh automatically when files change or when open text buffers are edited.
-- Highlight `TODO` and `TODO:` markers directly in the editor.
+- Highlight `TODO` and `TODO:` markers directly in the editor, with optional
+  case-sensitive matching to ignore lowercase words such as the Spanish `todo`.
 - Recognize common comment styles for JavaScript/TypeScript, Python, Go, Rust,
   Java, C/C++, C#, HTML, Markdown, CSS, SQL, Shell, PowerShell, Ruby, Lua,
   Haskell, Elixir, Svelte, Blade, Razor, Vimscript, Batch, LaTeX, Lisp, and
@@ -37,10 +38,14 @@ Open the Command Palette and search for `TODO Tree`:
 | ------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `todoTreePro.excludeFolders`    | `.git`, `.output`, `.out`, `node_modules`, `dist`, `build`, `.next`, `coverage` | Folder names excluded wherever they appear in the workspace.              |
 | `todoTreePro.collapsedFolders`  | `.agents`, `skills`                                                             | Folder names collapsed by default in the tree view.                       |
+| `todoTreePro.caseSensitive`     | `false`                                                                         | When enabled, only uppercase `TODO` and `TODO:` markers are recognized.   |
 | `todoTreePro.useGitignore`      | `true`                                                                          | Respect workspace `.gitignore` patterns when scanning TODOs.              |
 | `todoTreePro.maxFileSize`       | `5242880`                                                                       | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
 | `todoTreePro.highlight.enabled` | `true`                                                                          | Highlight TODO markers in visible editors.                                |
 | `todoTreePro.scanOnTextChange`  | `true`                                                                          | Update the TODO view from unsaved text buffer changes.                    |
+
+TODO matching is case-insensitive by default. Set `todoTreePro.caseSensitive`
+to `true` to recognize only uppercase `TODO` and `TODO:` markers.
 
 The default `excludeFolders` list includes `node_modules` and `dist` (along
 with the other common build and dependency folders shown above). Add or remove

@@ -90,4 +90,25 @@ describe('parseTodosFromText', () => {
     expect(todos[1].keyword).toBe('TODO:')
     expect(todos[1].endCharacter).toBe(8)
   })
+
+  it('ignores lowercase todo when case-sensitive matching is enabled', () => {
+    const uri = {
+      scheme: 'file',
+      fsPath: '/workspace/src/example.ts',
+      toString: () => 'file:///workspace/src/example.ts',
+    } as Uri
+    const todos = parseTodosFromText(
+      [
+        '// Antes de todo esto, un check para revisar si se hace el registro de manera directa',
+        '// TODO revisar el registro',
+      ].join('\n'),
+      uri,
+      undefined,
+      true,
+    )
+
+    expect(todos).toHaveLength(1)
+    expect(todos[0].line).toBe(1)
+    expect(todos[0].keyword).toBe('TODO')
+  })
 })

@@ -26,7 +26,8 @@ interface ScannerState {
   blockEndPlacement: 'any' | 'line-start'
 }
 
-const TODO_PATTERN = /\btodo\b:?/gi
+const TODO_PATTERN = /\bTODO\b:?/g
+const TODO_PATTERN_IGNORE_CASE = /\bTODO\b:?/gi
 
 const LINE_COMMENT_TOKENS: LineCommentToken[] = [
   { token: '//' },
@@ -54,9 +55,15 @@ const BLOCK_COMMENT_PAIRS: BlockCommentPair[] = [
   { startToken: '=begin', endToken: '=end', startPlacement: 'line-start', endPlacement: 'line-start' },
 ]
 
-export function parseTodosFromText(text: string, uri: Uri, workspaceFolder: WorkspaceFolder | undefined): TodoMatch[] {
+export function parseTodosFromText(
+  text: string,
+  uri: Uri,
+  workspaceFolder: WorkspaceFolder | undefined,
+  caseSensitive = false,
+): TodoMatch[] {
   const lines = text.split(/\r?\n/)
   const todos: TodoMatch[] = []
+  const todoPattern = caseSensitive ? TODO_PATTERN : TODO_PATTERN_IGNORE_CASE
   const state: ScannerState = {
     inBlock: false,
     blockEnd: '',
@@ -67,7 +74,9 @@ export function parseTodosFromText(text: string, uri: Uri, workspaceFolder: Work
     const line = lines[index]
     const commentSpans = collectCommentSpans(line, state)
 
-    for (const span of commentSpans) todos.push(...findTodosInComment(line, span, index, uri, workspaceFolder))
+    for (const span of commentSpans) {
+      todos.push(...findTodosInComment(line, span, index, uri, workspaceFolder, todoPattern))
+    }
   }
 
   return todos
@@ -151,10 +160,7 @@ function findNextLineComment(line: string, offset: number): { index: number; tok
   return best
 }
 
-function findNextBlockComment(
-  line: string,
-  offset: number,
-): (BlockCommentPair & { index: number }) | undefined {
+function findNextBlockComment(line: string, offset: number): (BlockCommentPair & { index: number }) | undefined {
   let best: (BlockCommentPair & { index: number }) | undefined
 
   for (const pair of BLOCK_COMMENT_PAIRS) {
@@ -214,13 +220,14 @@ function findTodosInComment(
   lineIndex: number,
   uri: Uri,
   workspaceFolder: WorkspaceFolder | undefined,
+  todoPattern: RegExp,
 ): TodoMatch[] {
   const matches: TodoMatch[] = []
   const commentText = line.slice(span.start, span.end)
-  TODO_PATTERN.lastIndex = 0
+  todoPattern.lastIndex = 0
 
   let match: RegExpExecArray | null
-  while ((match = TODO_PATTERN.exec(commentText))) {
+  while ((match = todoPattern.exec(commentText))) {
     const rawKeyword = match[0]
     const start = span.start + match.index
     const end = start + rawKeyword.length

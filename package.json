@@ -1,7 +1,7 @@
 {
   "name": "todo-tree-pro",
   "displayName": "TODO Tree Pro",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "A fast TODO explorer for VS Code with tree/list views, ripgrep-powered scans, and editor highlights.",
   "categories": [
@@ -159,6 +159,11 @@
             "type": "string"
           },
           "description": "Folder names collapsed by default in the tree view."
+        },
+        "todoTreePro.caseSensitive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Match TODO markers case-sensitively. When enabled, only uppercase TODO and TODO: are recognized."
         },
         "todoTreePro.useGitignore": {
           "type": "boolean",

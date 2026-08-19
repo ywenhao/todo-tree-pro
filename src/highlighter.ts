@@ -46,6 +46,7 @@ export class TodoHighlighter {
       editor.document.getText(),
       editor.document.uri,
       workspace.getWorkspaceFolder(editor.document.uri),
+      config.caseSensitive,
     )
     const colonRanges: Range[] = []
     const plainRanges: Range[] = []

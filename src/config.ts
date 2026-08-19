@@ -3,6 +3,7 @@ import { workspace } from 'vscode'
 export interface ExtensionConfig {
   excludeFolders: string[]
   collapsedFolders: string[]
+  caseSensitive: boolean
   useGitignore: boolean
   maxFileSize: number
   highlightEnabled: boolean
@@ -24,6 +25,7 @@ export function getConfig(): ExtensionConfig {
       'coverage',
     ]),
     collapsedFolders: config.get<string[]>('collapsedFolders', ['.agents', 'skills']),
+    caseSensitive: config.get<boolean>('caseSensitive', false),
     useGitignore: config.get<boolean>('useGitignore', true),
     maxFileSize: config.get<number>('maxFileSize', 5 * 1024 * 1024),
     highlightEnabled: config.get<boolean>('highlight.enabled', true),

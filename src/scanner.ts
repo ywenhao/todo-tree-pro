@@ -44,7 +44,7 @@ export async function scanDocumentUri(uri: Uri, config: ExtensionConfig): Promis
   const bytes = await workspace.fs.readFile(uri)
   const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
 
-  return createFileTodos(uri, text, folder)
+  return createFileTodos(uri, text, folder, config)
 }
 
 export function scanOpenDocumentText(uri: Uri, text: string, config: ExtensionConfig): FileTodos | undefined {
@@ -55,7 +55,7 @@ export function scanOpenDocumentText(uri: Uri, text: string, config: ExtensionCo
 
   if (isExcludedSync(uri, config, folder)) return undefined
 
-  return createFileTodos(uri, text, folder)
+  return createFileTodos(uri, text, folder, config)
 }
 
 async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Promise<FileTodos[]> {
@@ -68,8 +68,9 @@ async function scanFolder(folder: WorkspaceFolder, config: ExtensionConfig): Pro
 }
 
 async function runRipgrep(folder: WorkspaceFolder, config: ExtensionConfig, ripgrepPath: string): Promise<string[]> {
-  const args = ['--files-with-matches', '--ignore-case', '--hidden', '--glob', '!**/.git/**']
+  const args = ['--files-with-matches', '--hidden', '--glob', '!**/.git/**']
 
+  if (!config.caseSensitive) args.push('--ignore-case')
   if (!config.useGitignore) args.push('--no-ignore')
 
   const folderExcludeGlobs = getExcludeGlobs(config)
@@ -174,8 +175,8 @@ function ensureExecutable(binaryPath: string): void {
   }
 }
 
-function createFileTodos(uri: Uri, text: string, folder: WorkspaceFolder): FileTodos {
-  const todos = parseTodosFromText(text, uri, folder)
+function createFileTodos(uri: Uri, text: string, folder: WorkspaceFolder, config: ExtensionConfig): FileTodos {
+  const todos = parseTodosFromText(text, uri, folder, config.caseSensitive)
 
   return {
     uri,

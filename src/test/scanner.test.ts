@@ -5,6 +5,7 @@ import type { ExtensionConfig } from '../config.js'
 const baseConfig: ExtensionConfig = {
   excludeFolders: [],
   collapsedFolders: [],
+  caseSensitive: false,
   useGitignore: true,
   maxFileSize: 5 * 1024 * 1024,
   highlightEnabled: true,
