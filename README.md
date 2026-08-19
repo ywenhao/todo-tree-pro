@@ -33,14 +33,18 @@ Open the Command Palette and search for `TODO Tree`:
 
 ## Settings
 
-| Setting                         | Default                             | Description                                                               |
-| ------------------------------- | ----------------------------------- | ------------------------------------------------------------------------- |
-| `todoTreePro.excludeFolders`    | Common build and dependency folders | Folder names excluded wherever they appear in the workspace.              |
-| `todoTreePro.collapsedFolders`  | `.agents`, `skills`                 | Folder names collapsed by default in the tree view.                       |
-| `todoTreePro.useGitignore`      | `true`                              | Respect workspace `.gitignore` patterns when scanning TODOs.              |
-| `todoTreePro.maxFileSize`       | `5242880`                           | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
-| `todoTreePro.highlight.enabled` | `true`                              | Highlight TODO markers in visible editors.                                |
-| `todoTreePro.scanOnTextChange`  | `true`                              | Update the TODO view from unsaved text buffer changes.                    |
+| Setting                         | Default                                                                         | Description                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `todoTreePro.excludeFolders`    | `.git`, `.output`, `.out`, `node_modules`, `dist`, `build`, `.next`, `coverage` | Folder names excluded wherever they appear in the workspace.              |
+| `todoTreePro.collapsedFolders`  | `.agents`, `skills`                                                             | Folder names collapsed by default in the tree view.                       |
+| `todoTreePro.useGitignore`      | `true`                                                                          | Respect workspace `.gitignore` patterns when scanning TODOs.              |
+| `todoTreePro.maxFileSize`       | `5242880`                                                                       | Maximum file size, in bytes, parsed after ripgrep finds a candidate file. |
+| `todoTreePro.highlight.enabled` | `true`                                                                          | Highlight TODO markers in visible editors.                                |
+| `todoTreePro.scanOnTextChange`  | `true`                                                                          | Update the TODO view from unsaved text buffer changes.                    |
+
+The default `excludeFolders` list includes `node_modules` and `dist` (along
+with the other common build and dependency folders shown above). Add or remove
+folder names in VS Code settings to customize the scan scope.
 
 ## Development
 
