@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -57,6 +58,6 @@ jobs:
         with:
           path: vsix
           merge-multiple: true
-      - run: npx @vscode/vsce publish --packagePath vsix/*.vsix
+      - run: npx @vscode/vsce publish --skip-duplicate --packagePath vsix/*.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
